@@ -66,15 +66,27 @@ def derive_title(folder):
                 return raw_title, file_title
     return None, None
 
+def is_image_file(entry):
+    result = False
+
+    extensions = [ '.jpg', '.png' ]
+    for ext in extensions:
+        upperExt = ext.upper()
+        filename = str(entry.name)
+        if filename.endswith(ext) or filename.endswith(upperExt):
+            result = True
+            break
+
+    return result
 
 def copy_images(ulysses_folder, jekyll_folder):
-    src = ulysses_folder + "/images"
+    src = ulysses_folder
     dest = jekyll_folder + "/images"
 
     try:
         with os.scandir(src) as entries:
             for entry in entries:
-                if entry.is_file():
+                if entry.is_file() and is_image_file(entry):
                     src_image = src + '/' + entry.name
                     dest_image = dest + "/" + entry.name
                     print("Copying %s -> %s" % (src_image, dest_image))
@@ -109,7 +121,7 @@ def use_kramdown_image_tag(line):
             block_attributes = block_attributes.replace(' ', '\" ')
             block_attributes += "\""
 
-        image = "![%s](%s %s)%s" % (title, path,
+        image = "![%s](%s %s)%s" % (title, '/images/'+path,
                                     caption if caption is not None else "",
                                     "{: "+block_attributes+" }" if block_attributes else "")
 
